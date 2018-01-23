@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+    <!-- This is a wide open CSP declaration. To lock this down for production, see below. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *" />
+    <!-- Good default declaration:
+    * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
+    * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+    * Disables use of eval() and inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+        * Enable inline JS: add 'unsafe-inline' to default-src
+        * Enable eval(): add 'unsafe-eval' to default-src
+    * Create your own at http://cspisawesome.com
+    -->
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com; style-src 'self' 'unsafe-inline'; media-src *" /> -->
+    <title>Farmacia de Guardia en Nerja</title>
+    <link rel="stylesheet" type="text/css" href="css/calendar.css" />
+    <link rel="stylesheet" type="text/css" href="css/custom_2.css" />
+    <link rel="stylesheet" type="text/css" href="css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/leaflet.css" />
+    <script src="js/modernizr.custom.63321.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <header class="clearfix">
+      <h1>Farmacia de Guardia en Nerja (Málaga)<span>De 9:30 a 9:30 del día siguiente</span></h1>
+    </header>
+    <section class="main">
+      <div class="custom-calendar-wrap">
+        <div id="custom-inner" class="custom-inner">
+          <div class="custom-header clearfix">
+            <nav>
+              <span id="custom-prev" class="custom-prev"></span>
+              <span id="custom-next" class="custom-next"></span>
+            </nav>
+            <h2 id="custom-month" class="custom-month"></h2>
+            <h3 id="custom-year" class="custom-year"></h3>
+          </div>
+          <div id="calendar" class="fc-calendar-container"></div>
+        </div>
+      </div>
+        <div class="pure-button">Ubicación actual activando GPS - radio 100m</div>
+        <div id="map"></div>
+      <small><a href="https://somval.com">By somval.com</a></small>
+    </section>
+  </div><!-- /container -->
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+  <script type="text/javascript" src="cordova.js"></script>
+  <script type="text/javascript" src="js/leaflet.js"></script>
+  <script type="text/javascript" src="js/maps.js"></script>
+  <script type="text/javascript" src="js/data.js"></script>
+  <script type="text/javascript" src="js/jquery.calendario.js"></script>
+  <script type="text/javascript">
+    $(function() {
+
+      var transEndEventNames = {
+          'WebkitTransition' : 'webkitTransitionEnd',
+          'MozTransition' : 'transitionend',
+          'OTransition' : 'oTransitionEnd',
+          'msTransition' : 'MSTransitionEnd',
+          'transition' : 'transitionend'
+        },
+        transEndEventName = transEndEventNames[ Modernizr.prefixed( 'transition' ) ],
+        $wrapper = $( '#custom-inner' ),
+        $calendar = $( '#calendar' ),
+        cal = $calendar.calendario( {
+          onDayClick : function( $el, $contentEl, dateProperties ) {
+
+            if( $contentEl.length > 0 ) {
+              showEvents( $contentEl, dateProperties );
+            }
+
+          },
+          caldata : codropsEvents,
+          displayWeekAbbr : true
+        } ),
+        $month = $( '#custom-month' ).html( cal.getMonthName() ),
+        $year = $( '#custom-year' ).html( cal.getYear() );
+
+      $( '#custom-next' ).on( 'click', function() {
+        cal.gotoNextMonth( updateMonthYear );
+      } );
+      $( '#custom-prev' ).on( 'click', function() {
+        cal.gotoPreviousMonth( updateMonthYear );
+      } );
+
+      function updateMonthYear() {
+        $month.html( cal.getMonthName() );
+        $year.html( cal.getYear() );
+      }
+
+      // just an example..
+      function showEvents( $contentEl, dateProperties ) {
+
+        hideEvents();
+
+        var $events = $( '<div id="custom-content-reveal" class="custom-content-reveal"><h4>Farmacia de Guardia ' + dateProperties.day + ' ' + dateProperties.monthname + ', ' + dateProperties.year + '</h4></div>' ),
+          $close = $( '<span class="custom-content-close"></span>' ).on( 'click', hideEvents );
+
+        $events.append( $contentEl.html() , $close ).insertAfter( $wrapper );
+
+        setTimeout( function() {
+          $events.css( 'top', '0%' );
+        }, 25 );
+
+      }
+      function hideEvents() {
+
+        var $events = $( '#custom-content-reveal' );
+        if( $events.length > 0 ) {
+
+          $events.css( 'top', '100%' );
+          Modernizr.csstransitions ? $events.on( transEndEventName, function() { $( this ).remove(); } ) : $events.remove();
+
+        }
+
+      }
+    });
+  </script>
+</body>
+</html>
